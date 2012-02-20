@@ -1,0 +1,68 @@
+﻿@model LiveBidsWithSignalR.Models.LiveBid
+
+@{
+    ViewBag.Title = @ViewBag.Name;
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var connection = $.connection('/echo');
+
+        $('#FormContainer').delegate('form', 'submit', function () {
+            $.ajax({
+                url: this.action,
+                type: this.method,
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response == "SUCCESS") {
+                        connection.send("RefreshBid");
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.responseText);
+                    alert(thrownError);
+                }
+            });
+            return false;
+        });
+
+        connection.received(function (eventType) {
+            if (eventType == 'RefreshBid') {
+                GetCurrentBid();
+            }
+        });
+
+        connection.start();
+        GetCurrentBid();
+    });
+
+    function GetCurrentBid() {
+        var url = '/LiveBid/GetCurrentBid/@Model.LiveBidItemId';
+        $.getJSON(url, function (data) {
+            if (data && data != 'ERROR') {
+                $('#CurrentBid').html(data.Bid);
+            }
+        });
+    }
+</script>
+<h2>Current Bid: $<label id="CurrentBid"></label></h2>
+<div>
+    <div class="display-label">Name:</div>
+    <div class="display-field">@ViewBag.Name</div>
+    <div class="display-label">Description:</div>
+    <div class="display-field">@ViewBag.Description</div>
+</div>
+<div id="FormContainer">
+    @using (Html.BeginForm("Bid", "LiveBid", FormMethod.Post))
+    {
+        @Html.HiddenFor(model => model.LiveBidItemId)
+        <div class="editor-label">
+            @Html.LabelFor(m => m.Bid)
+        </div>
+        <div class="editor-field">
+            @Html.TextBoxFor(m => m.Bid)
+            @Html.ValidationMessageFor(m => m.Bid)
+        </div>
+        <input id="Submit" type="submit" value="Bid" />
+    }
+</div>
