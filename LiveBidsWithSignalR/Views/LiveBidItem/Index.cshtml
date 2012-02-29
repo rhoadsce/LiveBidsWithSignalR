@@ -3,117 +3,49 @@
 @{
     ViewBag.Title = "Live Bid Items";
 }
+<script src="@Url.Content("~/Scripts/LiveBidItems.js")" type="text/javascript"></script>
 
 <h2>Items</h2>
-
-<script type="text/javascript">
-
-    $(document).ready(function () {
-        var connection = $.connection('echo');
-
-        $('#Create, #Update, #Delete').click(function () {
-            $.ajax({
-                url: $(this).attr('callbackUrl'),
-                type: 'POST',
-                data: $('tr#Fields input, tr#Fields select').serialize(),
-                success: function (response) {
-                    if (response == "SUCCESS") {
-                        connection.send("RefreshItemList");
-                    }
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.responseText);
-                    alert(thrownError);
-                }
-            });
-            ResetFields();
-        });
-
-        connection.received(function (eventType) {
-            if (eventType == 'RefreshItemList') {
-                GetLiveBidItems();
-            }
-        });
-
-        connection.start();
-
-        $('#Modify').live('click', function () {
-            var id = $(this).attr('livebiditemid');
-            $('tr#Fields #LiveBidItemId').val(id);
-            $('tr#Fields #Name').val($('table#LiveBidItems #Name_' + id).html());
-            $('tr#Fields #Description').val($('table#LiveBidItems #Description_' + id).html());
-            $('#ModifyActions').show();
-            $('#CreateActions').hide();
-        });
-        $('#Bid').live('click', function () {
-            var id = $(this).attr('livebiditemid');
-            window.location.href = '/LiveBid/Index/' + id;
-        });
-        $('#Cancel, #Clear').click(function () {
-            ResetFields();
-        });
-        $('#ModifyActions').hide();
-        GetLiveBidItems();
-    });
-
-    function GetLiveBidItems() {
-        var url = '/LiveBidItem/GetAll';
-        $.getJSON(url, function (data) {
-            if (data && data != 'ERROR') {
-                var tableBody = $('table#LiveBidItems tbody');
-                tableBody.empty()
-                for (i = 0; i < data.length; i++) {
-                    tableBody.append('<tr>' +
-                                        '<td id="Name_' + data[i].LiveBidItemId + '">' + data[i].Name + '</td>' +
-                                        '<td id="Description_' + data[i].LiveBidItemId + '">' + data[i].Description + '</td>' +
-                                        '<td>' +
-                                            '<input id="Modify" type="button" value="Modify" livebiditemid="' + data[i].LiveBidItemId + '" />' +
-                                            '<a href="/LiveBid/Index/' + data[i].LiveBidItemId + '">Bid</a>' +
-                                        '</td>' +
-                                    '</tr>');
-                }
-            }
-        });
-    }
-
-    function ResetFields() {
-        $('#ModifyActions').hide();
-        $('#CreateActions').show();
-        $('tr#Fields th#Field input, tr#Fields th#Field select').val('');
-    }
-</script>
 
 @Html.ValidationSummary(true)
 <table id="LiveBidItems">
 <thead>
     <tr>
-        <th>@Html.LabelFor(model => model.Name)</th>
-        <th>@Html.LabelFor(model => model.Description)</th>
+        <th>Name</th>
+        <th>Description</th>
         <th></th>
     </tr>
-    <tr id="Fields">
+    <tr id="Fields" data-bind="with: selectedItem">
         <th id="Field">
-            @Html.HiddenFor(model => model.LiveBidItemId)
-            @Html.EditorFor(model => model.Name)
+            @Html.HiddenFor(model => model.LiveBidItemId, new { data_bind = "value: liveBidItemId" })
+            @Html.TextBoxFor(model => model.Name, new { data_bind = "value: name"})
             @Html.ValidationMessageFor(model => model.Name)
         </th>
         <th id="Field">
-            @Html.EditorFor(model => model.Description)
+            @Html.TextBoxFor(model => model.Description, new { data_bind = "value: description" })
             @Html.ValidationMessageFor(model => model.Description)
         </th>
         <th>
             <div id="CreateActions">
-                <input id="Create" type="button" value="Create" callbackUrl="/LiveBidItem/Create" />
+                <input id="Create" type="button" value="Create" data-bind="click: $parent.createItem" />
                 <input id="Clear" type="button" value="Clear" />
             </div>
             <div id="ModifyActions">
-                <input id="Update" type="button" value="Update" callbackUrl="/LiveBidItem/Update" />
-                <input id="Delete" type="button" value="Delete" callbackUrl="/LiveBidItem/Delete" />
+                <input id="Update" type="button" value="Update" data-bind="click: $parent.updateItem" />
+                <input id="Delete" type="button" value="Delete" data-bind="click: $parent.removeItem" />
                 <input id="Cancel" type="button" value="Cancel" />
             </div>
         </th>
     </tr>
 </thead>
-<tbody>
+<tbody data-bind='foreach: items'>
+    <tr>
+        <td><span data-bind="text: name"></span></td>
+        <td><span data-bind="text: description"></span></td>
+        <td>
+            <input id="Modify" type="button" value="Modify" data-bind="click: $parent.setSelectedItem, attr: {livebiditemid: liveBidItemId}" /> | 
+            <input id="Bid" type="button" value="Bid"  data-bind="click: $parent.navigateToBidPage, attr: {livebiditemid: liveBidItemId}" />
+        </td>
+    </tr>
 </tbody>
 </table>

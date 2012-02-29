@@ -3,48 +3,8 @@
 @{
     ViewBag.Title = @ViewBag.Name;
 }
+<script src="@Url.Content("~/Scripts/LiveBid.js")" type="text/javascript"></script>
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        var connection = $.connection('/echo');
-
-        $('#FormContainer').delegate('form', 'submit', function () {
-            $.ajax({
-                url: this.action,
-                type: this.method,
-                data: $(this).serialize(),
-                success: function (response) {
-                    if (response == "SUCCESS") {
-                        connection.send("RefreshBid");
-                    }
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    alert(xhr.responseText);
-                    alert(thrownError);
-                }
-            });
-            return false;
-        });
-
-        connection.received(function (eventType) {
-            if (eventType == 'RefreshBid') {
-                GetCurrentBid();
-            }
-        });
-
-        connection.start();
-        GetCurrentBid();
-    });
-
-    function GetCurrentBid() {
-        var url = '/LiveBid/GetCurrentBid/@Model.LiveBidItemId';
-        $.getJSON(url, function (data) {
-            if (data && data != 'ERROR') {
-                $('#CurrentBid').html(data.Bid);
-            }
-        });
-    }
-</script>
 <h2>Current Bid: $<label id="CurrentBid"></label></h2>
 <div>
     <div class="display-label">Name:</div>

@@ -27,7 +27,7 @@ namespace LiveBidsWithSignalR.Controllers
                 List<dynamic> result = new List<dynamic>();
                 list.ForEach((i) =>
                 {
-                    result.Add(new { i.LiveBidItemId, i.Name, i.Description });
+                    result.Add(new { liveBidItemId = i.LiveBidItemId, name = i.Name, description = i.Description });
                 });
                 return Json(result, JsonRequestBehavior.AllowGet);
             }
