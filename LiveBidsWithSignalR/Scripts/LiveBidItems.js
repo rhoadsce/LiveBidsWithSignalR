@@ -30,15 +30,6 @@ $(document).ready(function () {
         var navigateToBidPage = function () {
             window.location.href = '/LiveBid/Index/' + this.liveBidItemId;
         };
-        var createItem = function () {
-            saveItem('/LiveBidItem/Create');
-        };
-        var removeItem = function () {
-            saveItem('/LiveBidItem/Delete');
-        };
-        var updateItem = function () {
-            saveItem('/LiveBidItem/Update');
-        };
         var saveItem = function (url) {
             $.ajax({
                 url: url,
@@ -62,9 +53,7 @@ $(document).ready(function () {
             selectedItem: selectedItem,
             loadItems: loadItems,
             setSelectedItem: setSelectedItem,
-            createItem: createItem,
-            removeItem: removeItem,
-            updateItem: updateItem,
+            saveItem: saveItem,
             navigateToBidPage: navigateToBidPage
         };
     })();

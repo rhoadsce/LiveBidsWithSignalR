@@ -27,12 +27,12 @@
         </th>
         <th>
             <div id="CreateActions">
-                <input id="Create" type="button" value="Create" data-bind="click: $parent.createItem" />
+                <input id="Create" type="button" value="Create" data-bind="click: $parent.saveItem.bind($data, '/LiveBidItem/Create')" />
                 <input id="Clear" type="button" value="Clear" />
             </div>
             <div id="ModifyActions">
-                <input id="Update" type="button" value="Update" data-bind="click: $parent.updateItem" />
-                <input id="Delete" type="button" value="Delete" data-bind="click: $parent.removeItem" />
+                <input id="Update" type="button" value="Update" data-bind="click: $parent.saveItem.bind($data, '/LiveBidItem/Update')" />
+                <input id="Delete" type="button" value="Delete" data-bind="click: $parent.saveItem.bind($data, '/LiveBidItem/Delete')" />
                 <input id="Cancel" type="button" value="Cancel" />
             </div>
         </th>
